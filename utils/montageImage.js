@@ -27,9 +27,9 @@ const tile = async (shots, rows, cols, finalName) => {
     // create the rows of the final image
     for (let i = 0; i < rows; i++) {
         await new Promise((resolve, reject) => {
+            const f = ffmpeg();
             f.setFfmpegPath(process.env.FFMPEG_PATH);
             f.setFfprobePath(process.env.FFPROBE_PATH);
-            const f = ffmpeg();
             for (let j = 0; j < cols; j++) f.input(shots[j + i * cols]);
             let filterArg = "";
             for (let j = 0; j < cols; j++) filterArg += `[${j}]`;
