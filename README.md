@@ -1,6 +1,10 @@
 # 🎞 Montage Creator
 Create a preview of a video in the form of short video clip or a montage image
 
+![image](https://user-images.githubusercontent.com/43832407/157314994-159ed546-777e-450d-bb38-8542e56e7b03.png)
+![image](https://user-images.githubusercontent.com/43832407/157315018-add4d2bd-6400-4d11-a4a0-71357930d811.png)
+
+
 ## 🚀 Getting Started
 
 1. `ffmpeg` and `ffprobe` are required for this project. Add the path to the executables for these in the next step.
