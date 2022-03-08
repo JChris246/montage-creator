@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import Router from "next/router";
 
-import UploadAnimation from "./UploadAnimation";
+import LoadingAnimation from "./LoadingAnimation";
 import { AlertDialog, useAlertDialog } from "./AlertDialog";
 
 const UploadButton = () => {
@@ -16,14 +16,15 @@ const UploadButton = () => {
         body.append("video", files[0]);
 
         setUploading(true);
-        fetch("/api/upload", { method: "POST", body }).then((res) => {
+        fetch("/api/upload", { method: "POST", body })
+        .then(async (res) => {
             setUploading(false);
-            if (res.ok)
-                return res.json();
-        }).then(json => {
+            return { json: await res.json(), status: res.status }
+        }).then(({ json, status }) => {
             if (!json) throw new Error("Upload Failed");
-            console.log(json);
-            Router.replace({ pathname: "/studio/" + json.id });
+            if (status !== 201 && status !== 200)
+                dialog.display({ title: "Error", message: json.msg });
+            else Router.replace({ pathname: "/studio/" + json.id });
         }).catch(e => {
             console.log(e);
             dialog.display({ title: "Error", message: e })
@@ -32,7 +33,7 @@ const UploadButton = () => {
 
     return (
         <>
-            {uploading && <UploadAnimation/>}
+            {uploading && <LoadingAnimation action="Uploading"/>}
             { dialog.open ?
                 <AlertDialog handleClose={dialog.close} title={dialog.title} message={dialog.message}/> : <></> }
             <button onClick={() => input.current.click()} className="capitalize px-5 lg:px-10 py-3 lg:py-6 text-xl

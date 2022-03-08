@@ -2,7 +2,7 @@ import { useState } from "react";
 import Router from "next/router";
 
 import { AlertDialog, useAlertDialog } from "./AlertDialog";
-import UploadAnimation from "./UploadAnimation";
+import LoadingAnimation from "./LoadingAnimation";
 
 const PasteInput = () => {
     const [pasted, setPasted] = useState("");
@@ -18,19 +18,20 @@ const PasteInput = () => {
 
             const body = new FormData();
             body.append("link", value);
-            fetch("/api/upload", { method: "PUT", body }).then((res) => {
-                if (res.ok) return res.json();
-            }).then((json) => {
-                if (!json) throw new Error("Upload Failed");
-                setUploading(false);
-                setPasted("");
-                Router.replace({ pathname: "/studio/" + json.id });
-            }).catch(e => {
-                setUploading(false);
-                setPasted("");
-                console.log(e);
-                // dialog.display({ title: "Error", message: e });
-            });
+            fetch("/api/upload", { method: "PUT", body })
+                .then(async (res) => ({ json: await res.json(), status: res.status }))
+                .then(({ json, status }) => {
+                    if (!json) throw new Error("Upload Failed");
+                    if (status !== 201)
+                        dialog.display({ title: "Error", message: json.msg });
+                    else Router.replace({ pathname: "/studio/" + json.id });
+                    setUploading(false);
+                    setPasted("");
+                }).catch(e => {
+                    setUploading(false);
+                    setPasted("");
+                    dialog.display({ title: "Error", message: e.message });
+                });
         } else {
             dialog.display({ title: "Error", message: "Invalid url" });
             setPasted("");
@@ -39,7 +40,7 @@ const PasteInput = () => {
 
     return (
         <>
-            {uploading && <UploadAnimation/>}
+            {uploading && <LoadingAnimation action={"Uploading"}/>}
             { dialog.open ?
                 <AlertDialog handleClose={dialog.close} title={dialog.title} message={dialog.message}/> : <></> }
             <input type="text" placeholder="Paste a link" value={pasted} onChange={validateLink}

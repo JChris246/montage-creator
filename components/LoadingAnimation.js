@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import Modal from "./Modal";
 
-const UploadAnimation = () => {
+const LoadingAnimation = ({ action }) => {
     const [dots, setDots] = useState("");
 
     useEffect(() => {
@@ -16,10 +16,10 @@ const UploadAnimation = () => {
     return (
         <Modal center>
             <div className="w-1/6 text-4xl font-bold bg-transparent">
-                Uploading {dots}
+                {action} {dots}
             </div>
         </Modal>
     )
 };
 
-export default UploadAnimation;
+export default LoadingAnimation;

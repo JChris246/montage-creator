@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const axios = require('axios');
 const formidable = require("formidable");
+const { guidGenerator } = require("../../utils");
 
 export const config = {
     api: {
@@ -11,16 +12,7 @@ export const config = {
 
 const videoDir = "/home/christopher/Documents/video_cache";
 
-const getUniqueFilename = () => {
-    // adpated from
-    // https://github.com/JabbR/JabbR/blob/eb5b4e2f1e5bdbb1ea91230f1884716170a6976d/JabbR/Chat.utility.js#L50
-    const guidGenerator = () => {
-        const S4 = () => (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
-    }
-
-    return guidGenerator() + ".mp4";
-}
+const getUniqueFilename = () => guidGenerator() + ".mp4";
 
 const uploadFile = async (req, res) => {
     try {
@@ -37,7 +29,7 @@ const uploadFile = async (req, res) => {
         return res.status(201).json({ id: path.basename(data.video.newFilename) });
     } catch (e) {
         console.log(e);
-        return res.status(501).json({ msg: e });
+        return res.status(500).json({ msg: e.message });
     }
 };
 
@@ -55,7 +47,17 @@ const fetchFile = async (req, res) => {
         if (!data.link)
             return res.status(400).json({ msg: "Missing link" });
         else {
-            const response = await axios({ method: "get", url: data.link, responseType: "stream" });
+            const response = await axios({
+                method: "get",
+                url: data.link,
+                responseType: "stream",
+                headers: { "Accept": "video/mp4" }
+            });
+
+            const { headers } = response;
+            if (headers["content-type"] !== "video/mp4")
+                return res.status(400).json({ msg: "Url does not point to an mp4 video" });
+
             const newFilename = getUniqueFilename();
 
             const writer = fs.createWriteStream(videoDir + "/" + newFilename);
@@ -72,13 +74,13 @@ const fetchFile = async (req, res) => {
                     return res.status(201).json({ msg: "Uploaded the video successfully", id: path.basename(newFilename) });
                 } else {
                     console.log(e);
-                    return res.status(501).json(e);
+                    return res.status(500).json(e);
                 }
             });
         }
     } catch (e) {
         console.log(e);
-        return res.status(501).json(e);
+        return res.status(500).json(e);
     }
 };
 
@@ -87,5 +89,5 @@ export default async function handler(req, res) {
         return await uploadFile(req, res);
     else if (req.method === "PUT")
         return await fetchFile(req, res);
-    else return res.send(400).json("Bad Method");
+    else return res.status(400).json("Bad Method");
 }
