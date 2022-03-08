@@ -8,6 +8,8 @@ const screenshot = async ({ video, timestamp, name, width="854", height="480" })
     const folder = path.dirname(name);
 
     await new Promise((resolve, reject) => {
+        ffmpeg.setFfmpegPath(process.env.FFMPEG_PATH);
+        ffmpeg.setFfprobePath(process.env.FFPROBE_PATH);
         return ffmpeg()
             .input(video)
             .screenshot({
@@ -25,6 +27,8 @@ const tile = async (shots, rows, cols, finalName) => {
     // create the rows of the final image
     for (let i = 0; i < rows; i++) {
         await new Promise((resolve, reject) => {
+            f.setFfmpegPath(process.env.FFMPEG_PATH);
+            f.setFfprobePath(process.env.FFPROBE_PATH);
             const f = ffmpeg();
             for (let j = 0; j < cols; j++) f.input(shots[j + i * cols]);
             let filterArg = "";
@@ -40,6 +44,8 @@ const tile = async (shots, rows, cols, finalName) => {
 
     // merge the rows into the final image
     await new Promise((resolve, reject) => {
+        ffmpeg.setFfmpegPath(process.env.FFMPEG_PATH);
+        ffmpeg.setFfprobePath(process.env.FFPROBE_PATH);
         ffmpeg()
             .input(tempDir + "/row-%d.png")
             .outputOptions([`-filter_complex tile=1x${rows}:margin=1`])
@@ -53,6 +59,8 @@ const tile = async (shots, rows, cols, finalName) => {
 const generatePreview = async (originalName, previewName) => {
     // generate a smaller version of the montage to display to the user before download
     await new Promise((resolve, reject) => {
+        ffmpeg.setFfmpegPath(process.env.FFMPEG_PATH);
+        ffmpeg.setFfprobePath(process.env.FFPROBE_PATH);
         ffmpeg()
             .input(originalName)
             .size("?x480")

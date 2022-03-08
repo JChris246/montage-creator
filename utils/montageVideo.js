@@ -9,6 +9,8 @@ const merge = async (list, outname) => {
     fs.writeFileSync(tempDir + "/l", list.reduce((acc, prev) => acc + "file '" + prev + "'\n", "").slice(0, -1));
 
     await new Promise((resolve, reject) => {
+        ffmpeg.setFfmpegPath(process.env.FFMPEG_PATH);
+        ffmpeg.setFfprobePath(process.env.FFPROBE_PATH);
         return ffmpeg(tempDir + "/l")
             .inputOptions(["-f concat", "-safe 0"])
             .videoCodec("copy").audioCodec("copy")
@@ -28,6 +30,8 @@ const cut = (video, start, duration, i) => {
     const outname = tempDir + "/" + purename + " clip" + i + ext;
 
     return new Promise((resolve, reject) => {
+        ffmpeg.setFfmpegPath(process.env.FFMPEG_PATH);
+        ffmpeg.setFfprobePath(process.env.FFPROBE_PATH);
         return ffmpeg()
             .input(video)
             .seekInput(start)
