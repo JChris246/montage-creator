@@ -1,5 +1,8 @@
 const ffmpeg = require("fluent-ffmpeg");
 
+export const videoDir = "/home/christopher/Documents/video_cache";
+export const tempDir = "/home/christopher/Documents/video_cache";
+
 // adpated from
 // https://github.com/JabbR/JabbR/blob/eb5b4e2f1e5bdbb1ea91230f1884716170a6976d/JabbR/Chat.utility.js#L50
 export const guidGenerator = () => {

@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const videoDir = "/home/christopher/Documents/video_cache";
+const { videoDir } = require("../../../utils");
 
 const streamMedia = async (name, type, req, res) => {
     if (!name) return res.status(400).json({ msg: "No montage id provided" });
@@ -14,7 +14,8 @@ const streamMedia = async (name, type, req, res) => {
         if (!fs.existsSync(filename))
             return res.status(404).json({ msg: "Montage not found" });
 
-        const CHUNK_SIZE = type === "video" ? (2 ** 20) * 3.5 : (2 ** 20) * 20;
+        // project currently too small for a dedicated media host ... so ignore large response
+        const CHUNK_SIZE = (2 ** 20) * 20;
         const fileSize = fs.statSync(filename).size;
 
         // Parse Range
@@ -35,7 +36,6 @@ const streamMedia = async (name, type, req, res) => {
         res.writeHead(206, headers);
 
         const reader = fs.createReadStream(filename, { start, end });
-        console.log("stream");
 
         // Stream the video chunk to the client
         reader.pipe(res);

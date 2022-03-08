@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const videoDir = "/home/christopher/Documents/video_cache";
+const { videoDir } = require("../../../utils");
 
 const streamVideo = (req, res) => {
     let { id } = req.query;

@@ -3,11 +3,11 @@ import UploadButton from "../components/UploadButton";
 
 export default function Home() {
     return (
-        <div className="flex justify-center flex-col bg-stone-800 overflow-x-hidden">
+        <div className="flex flex-col bg-stone-800 overflow-x-hidden h-screen">
             <header className="text-2xl text-gray-200 font-bold p-5 bg-zinc-800 shadow-lg w-full h-fit">
                 Montage<span className="text-sky-500">Creator</span>
             </header>
-            <main className="h-full text-neutral-100">
+            <main className="h-fit text-neutral-100">
                 <section className="flex flex-col-reverse items-center mt-32 w-full lg:w-fit mx-auto">
                     <img src="images/video_files.svg" alt=" " className="w-48 lg:w-72 my-20"/>
                     <article className="flex flex-col space-y-12">

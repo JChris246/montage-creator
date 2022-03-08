@@ -4,11 +4,18 @@ import { useRouter } from 'next/router'
 import LoadingAnimation from "../../components/LoadingAnimation";
 import { AlertDialog, useAlertDialog } from "../../components/AlertDialog";
 import { VideoOptions, ImageOptions } from "../../components/MontageOptions";
+import Download from "../../icons/download";
+import Image from "../../icons/image";
+import Video from "../../icons/video";
+import VideoStrip from "../../icons/videoStrip";
 
-const TabButton = ({ name, id, onClick, activeTab }) => {
+const TabButton = ({ name, id, onClick, activeTab, icon }) => {
     return <button tab={id} onClick={() => onClick(id)}
-        className={"w-full p-4 text-xl text-left hover:bg-sky-600 "
-            + (activeTab === id ? "bg-sky-500" : "bg-transparent")}>{name}</button>;
+        className={"w-full p-4 text-xl text-left hover:bg-sky-500 flex "
+            + (activeTab === id ? "bg-sky-600" : "bg-transparent")}>
+        {icon && icon({ className: "fill-gray-100 w-8 mr-4" })}
+        <span>{name}</span>
+    </button>;
 }
 
 export default function Studio() {
@@ -50,6 +57,11 @@ export default function Studio() {
         });
     };
 
+    const getLink = () => {
+        const name = activeTab === 1 ? montage.video : montage.image.replace("-preview", "");
+        return `/api/montage/${activeTab === 1 ? "video" : "image"}/${name}`;
+    };
+
     const changeActiveTab = (id) => {
         if (id === 0)
             setActiveTab(id);
@@ -69,27 +81,45 @@ export default function Studio() {
                 { dialog.open ?
                     <AlertDialog handleClose={dialog.close} title={dialog.title} message={dialog.message}/> : <></> }
                 <div className="flex h-4/5">
-                    <aside className="w-1/5 bg-gray-900 flex flex-col p-1 space-y-1">
+                    <aside className="w-1/5 bg-gray-900 flex flex-col p-1 space-y-5">
                         <ImageOptions create={createMontage}/>
                         <VideoOptions create={createMontage}/>
                     </aside>
                     <section className="w-3/5 bg-slate-700 p-1 lg:py-2 lg:px-10 ">
                         { loadingAnimation.show && <LoadingAnimation action={loadingAnimation.text}/> }
                         { activeTab === 0 ?
-                            <video src={"/api/video/" + video} controls className="w-full h-full m-auto rounded-lg"></video>
+                            <video key="original" controls className="w-full h-full m-auto rounded-lg">
+                                <source src={"/api/video/" + video} type="video/mp4"/>
+                            </video>
                             : (activeTab === 2 ? <img src={"/api/montage/image/" + montage.image} alt=" "
-                                className="w-full h-full m-auto rounded-xl"/> : <video src={"/api/montage/video/" + montage.video}
-                                controls className="w-full h-full m-auto rounded-lg"></video>)
+                                className="w-full h-full m-auto rounded-xl"/>
+                            : <video key="output" controls className="w-full h-full m-auto rounded-lg">
+                                <source src={"/api/montage/video/" + montage.video} type="video/mp4"/>
+                            </video>)
                         }
                     </section>
-                    <aside className="w-1/5 bg-gray-900">
-                        <TabButton name="Original Video" id={0} onClick={changeActiveTab} activeTab={activeTab}/>
-                        <TabButton name="Video Output" id={1} onClick={changeActiveTab} activeTab={activeTab}/>
-                        <TabButton name="Image Output" id={2} onClick={changeActiveTab} activeTab={activeTab}/>
+                    <aside className="w-1/5 bg-gray-900 flex flex-col justify-between">
+                        <div>
+                            <TabButton name="Original Video" id={0} onClick={changeActiveTab}
+                                activeTab={activeTab} icon={Video}/>
+                            <TabButton name="Video Output" id={1} onClick={changeActiveTab}
+                                activeTab={activeTab} icon={VideoStrip}/>
+                            <TabButton name="Image Output" id={2} onClick={changeActiveTab}
+                                activeTab={activeTab} icon={Image}/>
+                        </div>
+                        <div className="w-full">
+                            { (activeTab === 1 || activeTab === 2) && <a
+                                href={getLink()}
+                                download="montage.png" className="px-4 py-2 w-fit bg-green-500 hover:bg-green-600
+                                flex items-center">
+                                <Download className="fill-gray-100 w-4 mr-2"/>
+                                <span className="text-xl">Download</span>
+                            </a>}
+                        </div>
                     </aside>
                 </div>
-                <footer className="w-full h-1/5 bg-slate-700">
-
+                <footer className="w-full h-1/5 bg-slate-700 flex justify-center items-center text-4xl capitalize">
+                    Nothing here right now
                 </footer>
             </main>
         </div>

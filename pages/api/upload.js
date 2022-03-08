@@ -2,15 +2,13 @@ const fs = require("fs");
 const path = require("path");
 const axios = require('axios');
 const formidable = require("formidable");
-const { guidGenerator } = require("../../utils");
+const { guidGenerator, videoDir } = require("../../utils");
 
 export const config = {
     api: {
         bodyParser: false
     }
 }
-
-const videoDir = "/home/christopher/Documents/video_cache";
 
 const getUniqueFilename = () => guidGenerator() + ".mp4";
 
